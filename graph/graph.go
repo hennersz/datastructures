@@ -3,37 +3,44 @@ package graph
 //Node represents a node in a graph
 type Node struct {
 	Name     int
-	Adjacent []Edge
+	Adjacent []*Edge
 }
 
 //Edge represents an edge between 2 nodes
 type Edge struct {
-	Start  int
-	End    int
+	Start  *Node
+	End    *Node
 	Weight int
 }
 
 //Graph contains nodes and edges
 type Graph struct {
-	Nodes []Node
-	Edges []Edge
+	Nodes map[int]*Node
+	Edges []*Edge
 }
 
-//CreateGraph creates a new graph from a 2d array of ints
+//CreateGraph creates a new graph from a 2d, nxn array of ints
+//n nodes will be created, numbers from 0 to n-1.
+//Each element i,j of the input is the distance from node i to node j.
+//-1 is used to mark that there is no edge between 2 nodes.
 func CreateGraph(inputData [][]int) Graph {
-	var nodes []Node
-	var edges []Edge
+	nodes := make(map[int]*Node)
+
+	for i := range inputData {
+		newNode := Node{i, nil}
+		nodes[i] = &newNode
+	}
+	var edges []*Edge
 	for i, node := range inputData {
-		var newAdjacentList []Edge
 		for j, dist := range node {
 			if dist != -1 {
-				newEdge := Edge{i, j, dist}
-				newAdjacentList = append(newAdjacentList, newEdge)
-				edges = append(edges, newEdge)
+				start := nodes[i]
+				end := nodes[j]
+				newEdge := Edge{start, end, dist}
+				start.Adjacent = append(start.Adjacent, &newEdge)
+				edges = append(edges, &newEdge)
 			}
 		}
-		newNode := Node{i, newAdjacentList}
-		nodes = append(nodes, newNode)
 	}
 
 	return Graph{nodes, edges}
